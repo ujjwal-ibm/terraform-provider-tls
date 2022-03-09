@@ -4,6 +4,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"golang.org/x/crypto/ssh"
@@ -100,7 +101,7 @@ func readPublicKey(d *schema.ResourceData, prvKey interface{}) error {
 	if err == nil {
 		sshPubKeyBytes := ssh.MarshalAuthorizedKey(sshPubKey)
 
-		pubKeySSH = string(sshPubKeyBytes)
+		pubKeySSH = removeNewLine(string(sshPubKeyBytes))
 		pubKeySSHFingerprintMD5 = ssh.FingerprintLegacyMD5(sshPubKey)
 		pubKeySSHFingerprintSHA256 = ssh.FingerprintSHA256(sshPubKey)
 	}
@@ -118,4 +119,8 @@ func readPublicKey(d *schema.ResourceData, prvKey interface{}) error {
 	}
 
 	return nil
+}
+
+func removeNewLine(pubKey string) string {
+	return strings.TrimSuffix(pubKey, "\n") // remove newline
 }
